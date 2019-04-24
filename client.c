@@ -7,10 +7,10 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <stdlib.h>
- 
-#define MAXLINE    1024
+
+#define MAXLINE    4096
 #define SERV_PORT  9998
- 
+
 int main(int argc, char *argv[])
         {
             char sendbuf[MAXLINE],receivebuf[MAXLINE];
@@ -48,23 +48,28 @@ int main(int argc, char *argv[])
             /* 循环发送接收数据，send发送数据，recv接收数据 */
        while(1)
            {
-             printf("send msg to server: \n");
-             fgets(sendbuf, 1024, stdin);
+             //printf("send msg to server: \n");
+             //fgets(sendbuf, 1024, stdin);
+             printf("start to send message\n", );
+             for (int i = 0; i < 100; i++) {
              /* 向服务器端发送数据 */
-             if( send(client_sockfd, sendbuf, strlen(sendbuf), 0) < 0)
-              {
-                  printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
-                  exit(0);
-              }
+               if( send(client_sockfd, i, strlen(i), 0) < 0)
+                {
+                    printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
+                    exit(0);
+                }
+
              /* 接受服务器端传过来的数据 */
-             if((rec_len = recv(client_sockfd,receivebuf, MAXLINE,0)) == -1)
-              {
-                   perror("recv error");
-                   exit(1);
-              }
-             receivebuf[rec_len]='\0';
-             printf("Response from server: %s\n",receivebuf);
-           }
+            //    while(rec_len = recv(client_sockfd,receivebuf, MAXLINE,0)) != -1)
+            //     {
+            //          perror("recv error");
+            //          exit(1);
+            //     }
+            //  receivebuf[rec_len]='\0';
+            //  printf("Response from server: %s\n",receivebuf);
+             }
+             break;
+            }
        /* 关闭套接字 */
     close(client_sockfd);
     return 0;
