@@ -13,7 +13,8 @@
 
 int main(int argc, char *argv[])
         {
-            char sendbuf[MAXLINE],receivebuf[MAXLINE];
+            //char sendbuf[MAXLINE],receivebuf[MAXLINE];
+            char sendbuf="tcp";
             struct sockaddr_in servaddr;
             int client_sockfd;
             int rec_len;
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
              printf("start to send message \n");
              for (int i = 0; i < 100; i++) {
              /* 向服务器端发送数据 */
-               if( send(client_sockfd, i, sizeof(i), 0) < 0)
+               if( send(client_sockfd, sendbuf, strlen(sendbuf), 0) < 0)
                 {
                     printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
                     exit(0);
