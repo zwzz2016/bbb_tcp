@@ -50,10 +50,10 @@ int main(int argc, char *argv[])
         //   {
              //printf("send msg to server: \n");
              //fgets(sendbuf, 1024, stdin);
-             printf("start to send message\n", );
+             printf("start to send message \n");
              for (int i = 0; i < 100; i++) {
              /* 向服务器端发送数据 */
-               if( send(client_sockfd, i, strlen(i), 0) < 0)
+               if( send(client_sockfd, i, sizeof(i), 0) < 0)
                 {
                     printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
                     exit(0);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
              }
           //  }
        /* 关闭套接字 */
-       sleep 10s;
+       sleep(10);
     close(client_sockfd);
     return 0;
         }
