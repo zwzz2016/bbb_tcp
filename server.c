@@ -5,6 +5,7 @@
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
+#include <unistd.h>
 #define SERV_PORT 9998
 #define MAXLINE 3
 
@@ -13,7 +14,7 @@ int main(int argc, char** argv)
     int    socket_fd, connect_fd;
     struct sockaddr_in     servaddr; /* 服务器端网络地址结构体 */
     //char    buf[MAXLINE],sendbuf[MAXLINE];
-    int i,j=0;
+    int num=0,j=0;
     int     len;
     /*创建服务器端套接字--IPv4协议，面向连接通信，TCP协议*/
     if( (socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ){
@@ -47,7 +48,7 @@ int main(int argc, char** argv)
           exit(1);
      }
         /*接受客户端传过来的数据*/
-  while((len= recv(connect_fd, j, 3, 0))>0)
+  while(recv(connect_fd, j, 3, 0)>0&&num<100)
      {
       //  buf[len] = '\0';
       //  printf("receive message from client: %s\n", buf);
@@ -60,6 +61,7 @@ int main(int argc, char** argv)
             printf("send messaeg error: %s(errno: %d)\n", strerror(errno), errno);
             exit(0);
          }
+         num++;
      }
   close(connect_fd);
   close(socket_fd);

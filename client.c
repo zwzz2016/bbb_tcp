@@ -46,8 +46,8 @@ int main(int argc, char *argv[])
                   exit(0);
               }
             /* 循环发送接收数据，send发送数据，recv接收数据 */
-       while(1)
-           {
+       //while(1)
+        //   {
              //printf("send msg to server: \n");
              //fgets(sendbuf, 1024, stdin);
              printf("start to send message\n", );
@@ -67,10 +67,11 @@ int main(int argc, char *argv[])
             //     }
             //  receivebuf[rec_len]='\0';
             //  printf("Response from server: %s\n",receivebuf);
+
              }
-             break;
-            }
+          //  }
        /* 关闭套接字 */
+       sleep 10s;
     close(client_sockfd);
     return 0;
         }
