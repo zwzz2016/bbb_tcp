@@ -6,90 +6,62 @@
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include <unistd.h>
-#include <arpa/inet.h>
-
-#define MAXLINE    4096
-#define SERV_PORT  9998    /*½ÓÊÕÊı¾İ¶Ë¿ÚºÅ£¨·şÎñÆ÷£©*/
-#define CLIE_PORT  9997    /*·¢ËÍÊı¾İ¶Ë¿ÚºÅ£¨¿Í»§¶Ë£©*/
+#include <fcnt1.h>
+#define SERV_PORT 9998
+#define MAXLINE 4096
 
 int main(int argc, char** argv)
 {
-    int    socket_fd, connect_fd,client_fd;
-    struct sockaddr_in servaddr;     /* ·şÎñÆ÷¶ËÍøÂçµØÖ·½á¹¹Ìå */
-    struct sockaddr_in clieaddr;     /* ¿Í»§¶Ë¶ËÍøÂçµØÖ·½á¹¹Ìå */
+    int    socket_fd, connect_fd;
+    int    fd,lenth;
+    struct sockaddr_in     servaddr; /* æœåŠ¡å™¨ç«¯ç½‘ç»œåœ°å€ç»“æ„ä½“ */
     char    buf[MAXLINE],sendbuf[MAXLINE];
-
-
-   /* ´´½¨¿Í»§¶ËÌ×½Ó×Ö--IPv4Ğ­Òé£¬ÃæÏòÁ¬½ÓÍ¨ĞÅ£¬TCPĞ­Òé*/
-   if((client_fd=socket(AF_INET,SOCK_STREAM,0))<0)
-    {
-        perror("socket");
-        exit(0);
+    int     len;
+    /*åˆ›å»ºæœåŠ¡å™¨ç«¯å¥—æ¥å­—--IPv4åè®®ï¼Œé¢å‘è¿æ¥é€šä¿¡ï¼ŒTCPåè®®*/
+    if( (socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 ){
+    printf("create socket error: %s(errno: %d)\n",strerror(errno),errno);
+    exit(0);
     }
-   /* ³õÊ¼»¯ */
-  memset(&clieaddr,0,sizeof(clieaddr)); /* Êı¾İ³õÊ¼»¯-ÇåÁã */
-  clieaddr.sin_family = AF_INET; /* ÉèÖÃIPv4Í¨ĞÅ */
-  clieaddr.sin_port = htons(CLIE_PORT);/* ÉèÖÃ·şÎñÆ÷¶Ë¿ÚºÅ */
-  /* IPµØÖ·×ª»»º¯Êı£¬½«µã·ÖÊ®½øÖÆ×ª»»Îª¶ş½øÖÆ */
-   if( inet_pton(AF_INET, 129.204.181.40, &clieaddr.sin_addr) <= 0)
-    {
-         printf("inet_pton error for %s\n",129.204.181.40);
-         exit(0);
-    }
-   /* ½«Ì×½Ó×Ö°ó¶¨µ½·şÎñÆ÷µÄÍøÂçµØÖ·ÉÏ*/
-  if( connect(client_fd, (struct sockaddr *)&clieaddr, sizeof(clieaddr))<0)
-    {
-        perror("connected failed");
-        exit(0);
-    }
+    /*åˆå§‹åŒ–*/
+    memset(&servaddr, 0, sizeof(servaddr));/*æ•°æ®åˆå§‹åŒ–-æ¸…é›¶ */
+    servaddr.sin_family = AF_INET;  /*è®¾ç½®IPv4é€šä¿¡*/
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);//IPåœ°å€è®¾ç½®æˆINADDR_ANY,è®©ç³»ç»Ÿè‡ªåŠ¨è·å–æœ¬æœºçš„IPåœ°å€ã€‚
+    servaddr.sin_port = htons(SERV_PORT);//è®¾ç½®æœåŠ¡å™¨ç«¯å£ä¸ºSERV_PORT
 
-
-
-    /*´´½¨·şÎñÆ÷¶ËÌ×½Ó×Ö--IPv4Ğ­Òé£¬ÃæÏòÁ¬½ÓÍ¨ĞÅ£¬TCPĞ­Òé*/
-    if( (socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1 )
-    {
-        printf("create socket error: %s(errno: %d)\n",strerror(errno),errno);
-        exit(0);
-    }
-    /*³õÊ¼»¯*/
-    memset(&servaddr, 0, sizeof(servaddr));/*Êı¾İ³õÊ¼»¯-ÇåÁã */
-    servaddr.sin_family = AF_INET;  /*ÉèÖÃIPv4Í¨ĞÅ*/
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);//IPµØÖ·ÉèÖÃ³ÉINADDR_ANY,ÈÃÏµÍ³×Ô¶¯»ñÈ¡±¾»úµÄIPµØÖ·¡£
-    servaddr.sin_port = htons(SERV_PORT);//ÉèÖÃ·şÎñÆ÷¶Ë¿ÚÎªSERV_PORT
-
-    /*½«±¾µØµØÖ·°ó¶¨µ½Ëù´´½¨µÄÌ×½Ó×ÖÉÏ*/
+    /*å°†æœ¬åœ°åœ°å€ç»‘å®šåˆ°æ‰€åˆ›å»ºçš„å¥—æ¥å­—ä¸Š*/
     if( bind(socket_fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) <0)
     {
          printf("bind socket error: %s(errno: %d)\n",strerror(errno),errno);
          exit(0);
     }
-    /*¿ªÊ¼¼àÌıÊÇ·ñÓĞ¿Í»§¶ËÁ¬½Ó*/
+    /*å¼€å§‹ç›‘å¬æ˜¯å¦æœ‰å®¢æˆ·ç«¯è¿æ¥*/
     if( listen(socket_fd, 10) <0)
     {
          printf("listen socket error: %s(errno: %d)\n",strerror(errno),errno);
          exit(0);
     }
-    //printf("waiting for client's connection......\n");
+    printf("waiting for client's connection......\n");
 
-   /*×èÈûÖ±µ½ÓĞ¿Í»§¶ËÁ¬½Ó£¬²»È»¶àÀË·ÑCPU×ÊÔ´*/
+   /*é˜»å¡ç›´åˆ°æœ‰å®¢æˆ·ç«¯è¿æ¥ï¼Œä¸ç„¶å¤šæµªè´¹CPUèµ„æº*/
     if((connect_fd = accept(socket_fd, (struct sockaddr*)NULL, NULL)) <0)
      {
           printf("accept socket error: %s(errno: %d)",strerror(errno),errno);
           exit(1);
      }
-        /*½ÓÊÜ¿Í»§¶Ë´«¹ıÀ´µÄÊı¾İ*/
+        /*æ¥å—å®¢æˆ·ç«¯ä¼ è¿‡æ¥çš„æ•°æ®*/
   while((len = recv(connect_fd, buf, MAXLINE, 0))>0)
      {
-       buf[len] = '\0';
-       //printf("receive message from client: %s\n", buf);
-       /*Ïò¿Í»§¶Ë·¢ËÍ»ØÓ¦Êı¾İ*/
-       //printf("send message to client: \n");
-       //fgets(sendbuf, 4096, stdin);
-       if( send(client_fd, buf, strlen(buf), 0) < 0)
-         {
-            printf("send messaeg error: %s(errno: %d)\n", strerror(errno), errno);
-            exit(0);
-         }
+      buf[len] = '\0';
+      printf("receive message from client: %s\n", buf);
+      fd = open("a.txt",)
+       /*å‘å®¢æˆ·ç«¯å‘é€å›åº”æ•°æ®*/
+      //printf("send message to client: \n");
+      //fgets(sendbuf, 4096, stdin);
+      // if( send(connect_fd, sendbuf, strlen(sendbuf), 0) < 0)
+      //   {
+      //      printf("send messaeg error: %s(errno: %d)\n", strerror(errno), errno);
+      //      exit(0);
+      //   }
      }
   close(connect_fd);
   close(socket_fd);

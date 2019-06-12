@@ -8,71 +8,67 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#define MAXLINE    4096
-#define SERV_PORT  9998
+#define MAXLINE    1024
+#define SERV_PORT  9997
 
 int main(int argc, char *argv[])
         {
-            //char sendbuf[MAXLINE],receivebuf[MAXLINE];
-            char sendbuf="tcp";
+            char sendbuf[MAXLINE],receivebuf[MAXLINE];
+            //char sendbuf="tcp";
             struct sockaddr_in servaddr;
             int client_sockfd;
             int rec_len;
-            /* ÅĞ¶ÏÃüÁî¶ËÊäÈëµÄ²ÎÊıÊÇ·ñÕıÈ· */
+            /* åˆ¤æ–­å‘½ä»¤ç«¯è¾“å…¥çš„å‚æ•°æ˜¯å¦æ­£ç¡® */
              if( argc != 2)
              {
                  printf("usage: ./client <ipaddress>\n");
                  exit(0);
               }
-             /* ´´½¨¿Í»§¶ËÌ×½Ó×Ö--IPv4Ğ­Òé£¬ÃæÏòÁ¬½ÓÍ¨ĞÅ£¬TCPĞ­Òé*/
+             /* åˆ›å»ºå®¢æˆ·ç«¯å¥—æ¥å­—--IPv4åè®®ï¼Œé¢å‘è¿æ¥é€šä¿¡ï¼ŒTCPåè®®*/
              if((client_sockfd=socket(AF_INET,SOCK_STREAM,0))<0)
               {
                   perror("socket");
                   exit(0);
               }
-             /* ³õÊ¼»¯ */
-            memset(&servaddr,0,sizeof(servaddr)); /* Êı¾İ³õÊ¼»¯-ÇåÁã */
-            servaddr.sin_family = AF_INET; /* ÉèÖÃIPv4Í¨ĞÅ */
-            servaddr.sin_port = htons(SERV_PORT);/* ÉèÖÃ·şÎñÆ÷¶Ë¿ÚºÅ */
-            /* IPµØÖ·×ª»»º¯Êı£¬½«µã·ÖÊ®½øÖÆ×ª»»Îª¶ş½øÖÆ */
+             /* åˆå§‹åŒ– */
+            memset(&servaddr,0,sizeof(servaddr)); /* æ•°æ®åˆå§‹åŒ–-æ¸…é›¶ */
+            servaddr.sin_family = AF_INET; /* è®¾ç½®IPv4é€šä¿¡ */
+            servaddr.sin_port = htons(SERV_PORT);/* è®¾ç½®æœåŠ¡å™¨ç«¯å£å· */
+            /* IPåœ°å€è½¬æ¢å‡½æ•°ï¼Œå°†ç‚¹åˆ†åè¿›åˆ¶è½¬æ¢ä¸ºäºŒè¿›åˆ¶ */
              if( inet_pton(AF_INET, argv[1], &servaddr.sin_addr) <= 0)
               {
                    printf("inet_pton error for %s\n",argv[1]);
                    exit(0);
               }
-             /* ½«Ì×½Ó×Ö°ó¶¨µ½·şÎñÆ÷µÄÍøÂçµØÖ·ÉÏ*/
+             /* å°†å¥—æ¥å­—ç»‘å®šåˆ°æœåŠ¡å™¨çš„ç½‘ç»œåœ°å€ä¸Š*/
             if( connect(client_sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr))<0)
               {
                   perror("connected failed");
                   exit(0);
               }
-            /* Ñ­»··¢ËÍ½ÓÊÕÊı¾İ£¬send·¢ËÍÊı¾İ£¬recv½ÓÊÕÊı¾İ */
-       //while(1)
-        //   {
-             //printf("send msg to server: \n");
-             //fgets(sendbuf, 1024, stdin);
+            /* å¾ªç¯å‘é€æ¥æ”¶æ•°æ®ï¼Œsendå‘é€æ•°æ®ï¼Œrecvæ¥æ”¶æ•°æ® */
+        while(1)
+           {
+             printf("send msg to server: \n");
+             fgets(sendbuf, 1024, stdin);
              printf("start to send message \n");
-             for (int i = 0; i < 100; i++) {
-             /* Ïò·şÎñÆ÷¶Ë·¢ËÍÊı¾İ */
+             /* å‘æœåŠ¡å™¨ç«¯å‘é€æ•°æ® */
                if( send(client_sockfd, sendbuf, strlen(sendbuf), 0) < 0)
                 {
                     printf("send msg error: %s(errno: %d)\n", strerror(errno), errno);
                     exit(0);
                 }
 
-             /* ½ÓÊÜ·şÎñÆ÷¶Ë´«¹ıÀ´µÄÊı¾İ */
-            //    while(rec_len = recv(client_sockfd,receivebuf, MAXLINE,0)) != -1)
-            //     {
-            //          perror("recv error");
-            //          exit(1);
-            //     }
-            //  receivebuf[rec_len]='\0';
-            //  printf("Response from server: %s\n",receivebuf);
-
-             }
-          //  }
-       /* ¹Ø±ÕÌ×½Ó×Ö */
-       sleep(10);
+             /* æ¥å—æœåŠ¡å™¨ç«¯ä¼ è¿‡æ¥çš„æ•°æ® */
+                if((rec_len = recv(client_sockfd,receivebuf, MAXLINE,0)) == -1)
+                 {
+                      perror("recv error");
+                      exit(1);
+                 }
+              receivebuf[rec_len]='\0';
+              printf("Response from server: %s\n",receivebuf);
+            }
+       /* å…³é—­å¥—æ¥å­— */
     close(client_sockfd);
     return 0;
-        }
+}
